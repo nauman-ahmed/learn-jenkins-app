@@ -19,6 +19,7 @@ pipeline {
                     npm run build
                     ls -la
                     find build -type f -name "*.html"
+                    npm test
                 '''
             }
         }
