@@ -18,6 +18,7 @@ pipeline {
                     npm ci
                     npm run build
                     ls -la
+                    find build -type f -name "*.html"
                 '''
             }
         }
