@@ -21,20 +21,20 @@ pipeline {
         //         '''
         //     }
         // }
-        // stage('test') {
-        //     agent {
-        //         docker {
-        //             image 'node:18-alpine'
-        //             reuseNode true
-        //         }
-        //     }
-        //     steps {
-        //         sh '''
-        //             find build -type f -name "*.html"
-        //             npm test
-        //         '''
-        //     }
-        // }
+        stage('test') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    find build -type f -name "*.html"
+                    npm test
+                '''
+            }
+        }
         stage('E2E') {
             agent {
                 docker {
