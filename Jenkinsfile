@@ -43,6 +43,28 @@ pipeline {
                 '''
             }
         }
+        stage('Post E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.49.1-noble'
+                    reuseNode true
+                }
+            }
+            environment {
+                CI_ENVIRONMENT_URL = 'https://loquacious-marigold-e1c9de.netlify.app'
+               
+            }
+            steps {
+                sh '''
+                    npx playwright test --reporter=html
+                '''
+            }
+            post {
+                always {
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                }
+            }
+        }
         stage("Tests"){
             parallel{
                 stage('Unit Test') {
