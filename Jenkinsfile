@@ -157,7 +157,7 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = 'YOUR NETLIFY URL'
+                CI_ENVIRONMENT_URL = 'https://loquacious-marigold-e1c9de.netlify.app'
             }
 
             steps {
@@ -172,5 +172,6 @@ pipeline {
                 }
             }
         }
+        
     }
 }
