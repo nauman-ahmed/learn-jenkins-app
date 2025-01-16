@@ -35,11 +35,11 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install netlify-cli
+                    npm install netlify-cli node-jq
                     node_modules/.bin/netlify --version
                     echo "deploying to production. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build 
+                    node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
                 '''
             }
         }
@@ -60,28 +60,28 @@ pipeline {
                 '''
             }
         }
-        // stage('Post E2E') {
-        //     agent {
-        //         docker {
-        //             image 'mcr.microsoft.com/playwright:v1.49.1-noble'
-        //             reuseNode true
-        //         }
-        //     }
-        //     environment {
-        //         CI_ENVIRONMENT_URL = 'https://loquacious-marigold-e1c9de.netlify.app'
+        stage('Post E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                }
+            }
+            environment {
+                CI_ENVIRONMENT_URL = 'https://loquacious-marigold-e1c9de.netlify.app'
                
-        //     }
-        //     steps {
-        //         sh '''
-        //             npx playwright test --reporter=html
-        //         '''
-        //     }
-        //     post {
-        //         always {
-        //             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-        //         }
-        //     }
-        // }
+            }
+            steps {
+                sh '''
+                    npx playwright test --reporter=html
+                '''
+            }
+            post {
+                always {
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                }
+            }
+        }
         stage("Tests"){
             parallel{
                 stage('Unit Test') {
@@ -115,7 +115,7 @@ pipeline {
                             npx playwright install
                             npm install serve
                             node_modules/.bin/serve -s build &
-                            sleep 10
+                            sleep 3
                             npx playwright test --reporter=html
                         '''
                     }
