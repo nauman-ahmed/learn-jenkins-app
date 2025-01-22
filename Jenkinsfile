@@ -10,6 +10,20 @@ pipeline {
 
     stages {
 
+        stage('AWS'){
+            agent{
+                docker{
+                    image 'amazon/aws-cli'
+                    args "--entrypoint=''"
+                }
+            }
+            steps{
+                sh '''
+                    aws --version
+                '''
+            }
+        }
+
         stage('Docker') {
             steps {
                 sh 'docker build -t my-playwright .'
@@ -105,7 +119,7 @@ pipeline {
         stage('Staging E2E') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'my-playwright'
                     reuseNode true
                 }
             }
@@ -155,7 +169,7 @@ pipeline {
         stage('Prod E2E') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'my-playwright'
                     reuseNode true
                 }
             }
