@@ -11,7 +11,25 @@ pipeline {
 
     stages {
 
-        stage('Deploy to AWS ECS'){
+        // stage('Deploy to AWS ECS And Create a Task Definition'){
+        //     agent{
+        //         docker{
+        //             image 'amazon/aws-cli'
+        //             args "--entrypoint=''"
+        //             reuseNode true
+        //         }
+        //     }
+        //     steps{
+        //         withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+        //             sh '''
+        //                 aws --version
+        //                 aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
+        //             '''
+        //         }
+        //     }
+        // }
+        
+        stage('Deploy to AWS ECS And Update a Service'){
             agent{
                 docker{
                     image 'amazon/aws-cli'
@@ -23,13 +41,11 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         aws --version
-                        // aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
-                        aws ecs update-service --cluster LearnJenkinsApp-Cluster --service LearnJenkinsApp-Service-Prod --task-definition LearnJenkinsApp-TaskDefinition-Prod:3
+                        aws ecs update-service --cluster LearnJenkinsApp-Cluster --service LearnJenkinsApp-Service-Prod --task-definition LearnJenkinsApp-TaskDefinition-Prod:5
                     '''
                 }
             }
         }
-
         // stage('Docker') {
         //     steps {
         //         sh 'docker build -t my-playwright .'
