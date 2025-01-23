@@ -11,29 +11,11 @@ pipeline {
 
     stages {
 
-        // stage('Deploy to AWS ECS And Create a Task Definition'){
-        //     agent{
-        //         docker{
-        //             image 'amazon/aws-cli'
-        //             args "--entrypoint=''"
-        //             reuseNode true
-        //         }
-        //     }
-        //     steps{
-        //         withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-        //             sh '''
-        //                 aws --version
-        //                 aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
-        //             '''
-        //         }
-        //     }
-        // }
-        
-        stage('Deploy to AWS ECS And Update a Service'){
+        stage('Deploy to AWS ECS '){
             agent{
                 docker{
                     image 'amazon/aws-cli'
-                    args "--entrypoint=''"
+                    args "-u root --entrypoint=''"
                     reuseNode true
                 }
             }
@@ -41,11 +23,17 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         aws --version
-                        aws ecs update-service --cluster LearnJenkinsApp-Cluster --service LearnJenkinsApp-Service-Prod --task-definition LearnJenkinsApp-TaskDefinition-Prod:5
+                        yum install jq -y
+                        LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition.json | jq '.taskDefinition.revision')
+                        echo $LATEST_TD_REVISION
+                        aws ecs update-service --cluster LearnJenkinsApp-Cluster --service LearnJenkinsApp-Service-Prod --task-definition LearnJenkinsApp-TaskDefinition-Prod:$LATEST_TD_REVISION
+
                     '''
                 }
             }
         }
+        
+        
         // stage('Docker') {
         //     steps {
         //         sh 'docker build -t my-playwright .'
