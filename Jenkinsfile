@@ -6,6 +6,7 @@ pipeline {
     environment {
         REACT_APP_VERSION = "1.0.$BUILD_ID"
         APP_NAME = 'learnjenkinsapp'
+        AWS_DOCKER_REGISTRY = '654654281644.dkr.ecr.us-east-1.amazonaws.com'
         NETLIFY_SITE_ID = '26455e22-fd06-4b80-bf1f-3edb1f59ee81'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
         AWS_DEFAULT_REGION = "eu-north-1"
@@ -43,10 +44,13 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                    amazon-linux-extras install docker
-                    docker build -t $APP_NAME:$REACT_APP_VERSION .
-                '''
+                withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        docker build -t $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION .
+                        aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
+                        docker push $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION
+                    '''
+                }
             }
         }
 
