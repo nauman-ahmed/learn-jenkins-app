@@ -35,7 +35,7 @@ pipeline {
         stage('Build Docker image') {
             agent{
                 docker{
-                    image 'amazon/aws-cli'
+                    image 'my-aws-cli'
                     args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
                     reuseNode true
                 }
@@ -51,7 +51,7 @@ pipeline {
         stage('Deploy to AWS ECS '){
             agent{
                 docker{
-                    image 'amazon/aws-cli'
+                    image 'my-aws-cli'
                     args "-u root --entrypoint=''"
                     reuseNode true
                 }
@@ -64,7 +64,6 @@ pipeline {
                         LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition.json | jq '.taskDefinition.revision')
                         echo $LATEST_TD_REVISION
                         aws ecs update-service --cluster LearnJenkinsApp-Cluster --service LearnJenkinsApp-Service-Prod --task-definition LearnJenkinsApp-TaskDefinition-Prod:$LATEST_TD_REVISION
-
                     '''
                 }
             }
@@ -73,7 +72,7 @@ pipeline {
         // stage('AWS'){
         //     agent{
         //         docker{
-        //             image 'amazon/aws-cli'
+        //             image 'my-aws-cli'
         //             args "--entrypoint=''"
         //             reuseNode true
         //         }
